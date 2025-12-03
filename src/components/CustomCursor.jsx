@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, useSpring, useMotionValue } from "framer-motion";
 
 export default function CustomCursor() {
@@ -12,6 +12,7 @@ export default function CustomCursor() {
 
   const [isHovering, setIsHovering] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
+  const [clickRipple, setClickRipple] = useState(false);
 
   useEffect(() => {
     const moveMouse = (e) => {
@@ -19,7 +20,12 @@ export default function CustomCursor() {
       cursorY.set(e.clientY - 16);
     };
 
-    const handleMouseDown = () => setIsClicking(true);
+    const handleMouseDown = () => {
+      setIsClicking(true);
+      setClickRipple(true);
+      setTimeout(() => setClickRipple(false), 500);
+    };
+
     const handleMouseUp = () => setIsClicking(false);
 
     const handleMouseOver = (e) => {
@@ -59,15 +65,35 @@ export default function CustomCursor() {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[99999] mix-blend-difference">
+      {/* Click Ripple Effect */}
+      {clickRipple && (
+        <motion.div
+          className="absolute w-16 h-16 border-2 border-white rounded-full"
+          style={{
+            x: cursorX,
+            y: cursorY,
+            translateX: -16,
+            translateY: -16,
+          }}
+          initial={{ scale: 0.5, opacity: 1 }}
+          animate={{ scale: 2.5, opacity: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        />
+      )}
+
       {/* Inner Dot (Instant Follow) */}
       <motion.div
         className="absolute w-2 h-2 bg-white rounded-full"
         style={{
           x: cursorX,
           y: cursorY,
-          translateX: 12, // Center inside the 32x32 box
+          translateX: 12,
           translateY: 12,
         }}
+        animate={{
+          scale: isClicking ? 0.5 : 1,
+        }}
+        transition={{ duration: 0.1 }}
       />
 
       {/* Outer Ring (Smooth Follow) */}

@@ -1,10 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  motion,
-  AnimatePresence,
-  useDragControls,
-  useMotionValue,
-} from "framer-motion";
+import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import { X, Minus, Maximize2, Minimize2 } from "lucide-react";
 
 export default function Window({
@@ -25,20 +20,22 @@ export default function Window({
   const dragControls = useDragControls();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  // Handle Resize for responsive animations
+  // Check if this window needs full-bleed layout (No padding/default bg)
+  // Finder, Resume, Notepad handle their own layout.
+  const isFullBleedApp = ["finder", "resume", "notepad"].some((appId) =>
+    id.includes(appId)
+  );
+
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Calculate Dock Position for Minimize Animation
   const dockItemWidth = 60;
   const dockWidth = totalDockItems * dockItemWidth;
   const dockOffset =
     dockIndex * dockItemWidth - dockWidth / 2 + dockItemWidth / 2;
-
-  // Initial Window Position
   const initialX = originRect ? originRect.x - (isMobile ? 0 : 400) : 0;
   const initialY = originRect ? originRect.y - 300 : 0;
 
@@ -55,7 +52,6 @@ export default function Window({
       scale: 1,
       x: 0,
       y: 0,
-      // EXPLICITLY RESET LAYOUT PROPERTIES TO RESTORE DRAGGABILITY
       width: isMobile ? "95vw" : "800px",
       height: isMobile ? "75vh" : "600px",
       top: isMobile ? "10vh" : "calc(50vh - 300px)",
@@ -70,10 +66,10 @@ export default function Window({
       scale: 1,
       x: 0,
       y: 0,
-      top: "32px", // Below Menu Bar
+      top: "32px",
       left: 0,
       width: "100vw",
-      height: "calc(100vh - 32px - 90px)", // Subtract Menu & Dock
+      height: "calc(100vh - 32px - 90px)",
       borderRadius: "0px 0px 12px 12px",
       filter: "blur(0px)",
       transitionEnd: { transform: "none" },
@@ -100,11 +96,8 @@ export default function Window({
     e.stopPropagation();
     setIsMaximized(!isMaximized);
   };
-
   const startDrag = (e) => {
-    if (!isMaximized) {
-      dragControls.start(e);
-    }
+    if (!isMaximized) dragControls.start(e);
   };
 
   return (
@@ -118,19 +111,19 @@ export default function Window({
           }
           exit="exit"
           variants={variants}
-          // Only enable dragging if NOT maximized and NOT minimized
           drag={!isMinimized && !isMaximized}
-          dragListener={false} // We attach listener to header manually
+          dragListener={false}
           dragControls={dragControls}
           dragMomentum={false}
           onMouseDown={() => onFocus(id)}
           style={{ zIndex }}
+          // Dynamic Background: Solid color for Finder/Notepad, Glass for others
           className={`absolute flex flex-col overflow-hidden shadow-2xl border border-white/20 
             ${
-              isMaximized ? "bg-[#0f111a]" : "bg-slate-900/85 backdrop-blur-2xl"
+              isMaximized ? "bg-[#1e1e1e]" : "bg-slate-900/85 backdrop-blur-2xl"
             }`}
         >
-          {/* Draggable Header */}
+          {/* Header */}
           <div
             className="window-header h-10 bg-white/5 border-b border-white/10 flex items-center justify-between px-4 shrink-0 touch-none select-none"
             onPointerDown={startDrag}
@@ -167,7 +160,6 @@ export default function Window({
                 )}
               </button>
             </div>
-
             <span className="absolute left-0 right-0 text-center text-white/80 text-sm font-medium pointer-events-none">
               {title}
             </span>
@@ -175,7 +167,15 @@ export default function Window({
           </div>
 
           {/* Content Area */}
-          <div className="flex-1 overflow-auto text-white cursor-auto custom-scrollbar bg-black/20">
+          {/* If FullBleed App (Finder), remove default padding/bg styles */}
+          <div
+            className={`flex-1 overflow-auto custom-scrollbar 
+            ${
+              isFullBleedApp
+                ? "bg-white text-gray-900"
+                : "text-white bg-black/20"
+            }`}
+          >
             {content}
           </div>
         </motion.div>
@@ -183,4 +183,3 @@ export default function Window({
     </AnimatePresence>
   );
 }
-  

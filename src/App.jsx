@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { AnimatePresence } from "framer-motion";
 import {
   User,
   Code2,
@@ -7,10 +8,15 @@ import {
   MessageSquare,
   FileText,
   File,
+  Folder,
+  Image as ImageIcon,
+  Settings,
+  Terminal as TerminalIcon,
 } from "lucide-react";
 
 // Components
 import BootScreen from "./components/BootScreen";
+import LockScreen from "./components/LockScreen";
 import DesktopIcon from "./components/DesktopIcon";
 import Window from "./components/Window";
 import Taskbar from "./components/Taskbar";
@@ -18,6 +24,8 @@ import MacOSCursor from "./components/MacOSCursor";
 import MenuBar from "./components/MenuBar";
 import SpotlightSearch from "./components/SpotlightSearch";
 import DesktopContextMenu from "./components/DesktopContextMenu";
+import ImageViewer from "./components/ImageViewer";
+import WallpaperSelector from "./components/WallpaperSelector";
 
 // Apps
 import About from "./apps/About";
@@ -25,20 +33,63 @@ import Projects from "./apps/Projects";
 import Experience from "./apps/Experience";
 import Skills from "./apps/Skills";
 import AIAssistant from "./apps/AIAssistant";
-import ResumeDoc from "./apps/ResumeDoc"; // New Resume App
-import Notepad from "./apps/Notepad"; // New Notepad App
+import ResumeDoc from "./apps/ResumeDoc";
+import Notepad from "./apps/Notepad";
+import Finder from "./apps/Finder";
+import SystemPreferences from "./apps/SystemPreferences";
+import Terminal from "./apps/Terminal";
 
 export default function App() {
+  // --- STATE ---
   const [isBooting, setIsBooting] = useState(true);
-  const [maxZIndex, setMaxZIndex] = useState(10);
+  const [isLocked, setIsLocked] = useState(false);
+  const [isWallpaperSelectorOpen, setIsWallpaperSelectorOpen] = useState(false);
+  const [maxZIndex, setMaxZIndex] = useState(20);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [activeWindowId, setActiveWindowId] = useState(null);
-
-  // Context Menu State
   const [contextMenu, setContextMenu] = useState({ isOpen: false, x: 0, y: 0 });
+  const [wallpaper, setWallpaper] = useState(
+    "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=2874&auto=format&fit=crop"
+  ); // Dark Nebula Default
 
+  // System State (Wi-Fi, Brightness, etc.)
+  const [systemState, setSystemState] = useState({
+    wifi: true,
+    bluetooth: true,
+    brightness: 100,
+    volume: 75,
+  });
+
+  // Window Definitions
   const [windows, setWindows] = useState([
-    // Standard Apps
+    {
+      id: "finder",
+      title: "Finder",
+      icon: Folder,
+      isOpen: false,
+      isMinimized: false,
+      zIndex: 20,
+      originRect: null,
+    },
+    {
+      id: "settings",
+      title: "System Settings",
+      icon: Settings,
+      isOpen: false,
+      isMinimized: false,
+      zIndex: 20,
+      originRect: null,
+    },
+    {
+      id: "terminal",
+      title: "Terminal",
+      icon: TerminalIcon,
+      content: <Terminal />,
+      isOpen: false,
+      isMinimized: false,
+      zIndex: 20,
+      originRect: null,
+    },
     {
       id: "about",
       title: "About Me",
@@ -46,7 +97,7 @@ export default function App() {
       content: <About />,
       isOpen: false,
       isMinimized: false,
-      zIndex: 1,
+      zIndex: 20,
       originRect: null,
     },
     {
@@ -56,7 +107,7 @@ export default function App() {
       content: <Projects />,
       isOpen: false,
       isMinimized: false,
-      zIndex: 1,
+      zIndex: 20,
       originRect: null,
     },
     {
@@ -66,7 +117,7 @@ export default function App() {
       content: <Experience />,
       isOpen: false,
       isMinimized: false,
-      zIndex: 1,
+      zIndex: 20,
       originRect: null,
     },
     {
@@ -76,7 +127,7 @@ export default function App() {
       content: <Skills />,
       isOpen: false,
       isMinimized: false,
-      zIndex: 1,
+      zIndex: 20,
       originRect: null,
     },
     {
@@ -86,10 +137,9 @@ export default function App() {
       content: <AIAssistant />,
       isOpen: false,
       isMinimized: false,
-      zIndex: 1,
+      zIndex: 20,
       originRect: null,
     },
-    // "Files" on Desktop
     {
       id: "resume",
       title: "Resume.pdf",
@@ -97,12 +147,136 @@ export default function App() {
       content: <ResumeDoc />,
       isOpen: false,
       isMinimized: false,
-      zIndex: 1,
+      zIndex: 20,
       originRect: null,
     },
   ]);
 
-  // Keyboard Shortcuts
+  // --- WINDOW MANAGEMENT HANDLERS (Simplified for brevity) ---
+  const handleBootComplete = () => {
+    setIsBooting(false);
+    setIsLocked(true);
+  };
+  const openWindow = (id, originRect) => {
+    setWindows((prev) =>
+      prev.map((win) => {
+        if (win.id === id) {
+          return {
+            ...win,
+            isOpen: true,
+            isMinimized: false,
+            zIndex: maxZIndex + 1,
+            originRect: originRect || win.originRect,
+          };
+        }
+        return win;
+      })
+    );
+    setMaxZIndex((prev) => prev + 1);
+    setActiveWindowId(id);
+  };
+  const closeWindow = (id) => {
+    setWindows((prev) =>
+      prev.map((win) => (win.id === id ? { ...win, isOpen: false } : win))
+    );
+    if (activeWindowId === id) setActiveWindowId(null);
+  };
+  const minimizeWindow = (id) => {
+    setWindows((prev) =>
+      prev.map((win) => (win.id === id ? { ...win, isMinimized: true } : win))
+    );
+    if (activeWindowId === id) setActiveWindowId(null);
+  };
+  const focusWindow = (id) => {
+    setWindows((prev) =>
+      prev.map((win) =>
+        win.id === id ? { ...win, zIndex: maxZIndex + 1 } : win
+      )
+    );
+    setMaxZIndex((prev) => prev + 1);
+    setActiveWindowId(id);
+  };
+
+  // File and App Handlers
+  const handleOpenFile = (file) => {
+    if (file.type === "app") {
+      openWindow(file.id, null);
+      return;
+    }
+    if (file.type === "pdf" || file.id.includes("resume")) {
+      openWindow("resume", null);
+      return;
+    }
+    if (file.type === "image") {
+      const imageId = `img-${file.id}`;
+      if (!windows.find((w) => w.id === imageId))
+        setWindows((prev) => [
+          ...prev,
+          {
+            id: imageId,
+            title: file.name,
+            icon: ImageIcon,
+            content: <ImageViewer src={file.src} name={file.name} />,
+            isOpen: true,
+            isMinimized: false,
+            zIndex: maxZIndex + 1,
+            originRect: null,
+          },
+        ]);
+      openWindow(imageId, null);
+      return;
+    }
+    const noteId = `note-${file.id}`;
+    if (!windows.find((w) => w.id === noteId)) {
+      setWindows((prev) => [
+        ...prev,
+        {
+          id: noteId,
+          title: file.name,
+          icon: FileText,
+          content: <Notepad title={file.name} />,
+          isOpen: true,
+          isMinimized: false,
+          zIndex: maxZIndex + 1,
+          originRect: null,
+        },
+      ]);
+    }
+    openWindow(noteId, null);
+  };
+
+  const handleNewFile = () => {
+    const fileName = prompt("Enter file name:", "New File.txt");
+    if (fileName)
+      setWindows((prev) => [
+        ...prev,
+        {
+          id: `file-${Date.now()}`,
+          title: fileName,
+          icon: File,
+          content: <Notepad title={fileName} />,
+          isOpen: false,
+          isMinimized: false,
+          zIndex: maxZIndex + 1,
+          originRect: null,
+        },
+      ]);
+  };
+
+  // Context Menu Handlers
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    const clickedIcon =
+      e.target.closest(".desktop-icon") || e.target.closest("button");
+    if (!clickedIcon) {
+      setContextMenu({ isOpen: true, x: e.clientX, y: e.clientY });
+    }
+  };
+  const handleDesktopClick = () => {
+    if (contextMenu.isOpen) setContextMenu({ ...contextMenu, isOpen: false });
+  };
+
+  // Keyboard Shortcuts (Same as previous turn)
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.altKey && e.code === "Space") {
@@ -124,173 +298,166 @@ export default function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [contextMenu]);
 
-  // Right Click Handler for Desktop
-  const handleContextMenu = (e) => {
-    // Only trigger if clicking on the background (not a window/icon)
-    if (e.target === e.currentTarget) {
-      e.preventDefault();
-      setContextMenu({
-        isOpen: true,
-        x: e.clientX,
-        y: e.clientY,
-      });
-    } else {
-      // If clicking elsewhere, close menu
-      setContextMenu({ ...contextMenu, isOpen: false });
-    }
-  };
-
-  // Close context menu on click anywhere
-  const handleDesktopClick = () => {
-    if (contextMenu.isOpen) setContextMenu({ ...contextMenu, isOpen: false });
-  };
-
-  // Create New File Logic
-  const handleNewFile = () => {
-    const fileName = prompt("Enter file name:", "New File.txt");
-    if (fileName) {
-      const newId = `file-${Date.now()}`;
-      const newFile = {
-        id: newId,
-        title: fileName,
-        icon: File, // Generic file icon
-        content: <Notepad title={fileName} />,
-        isOpen: false,
-        isMinimized: false,
-        zIndex: maxZIndex + 1,
-        originRect: null,
-      };
-
-      // Add to windows list
-      setWindows((prev) => [...prev, newFile]);
-    }
-  };
-
-  const openWindow = (id, originRect) => {
-    setWindows((prev) =>
-      prev.map((win) => {
-        if (win.id === id) {
-          if (win.isMinimized)
-            return { ...win, isMinimized: false, zIndex: maxZIndex + 1 };
-          if (win.isOpen) return { ...win, zIndex: maxZIndex + 1 };
-          return {
-            ...win,
-            isOpen: true,
-            isMinimized: false,
-            zIndex: maxZIndex + 1,
-            originRect: originRect,
-          };
-        }
-        return win;
-      })
-    );
-    setMaxZIndex((prev) => prev + 1);
-    setActiveWindowId(id);
-  };
-
-  const closeWindow = (id) => {
-    setWindows((prev) =>
-      prev.map((win) => (win.id === id ? { ...win, isOpen: false } : win))
-    );
-    if (activeWindowId === id) setActiveWindowId(null);
-  };
-
-  const minimizeWindow = (id) => {
-    setWindows((prev) =>
-      prev.map((win) => (win.id === id ? { ...win, isMinimized: true } : win))
-    );
-    if (activeWindowId === id) setActiveWindowId(null);
-  };
-
-  const focusWindow = (id) => {
-    setWindows((prev) =>
-      prev.map((win) =>
-        win.id === id ? { ...win, zIndex: maxZIndex + 1 } : win
-      )
-    );
-    setMaxZIndex((prev) => prev + 1);
-    setActiveWindowId(id);
-  };
-
   return (
     <div
-      className="h-screen w-screen overflow-hidden bg-black text-white relative font-sans"
+      className="h-screen w-screen overflow-hidden bg-black text-white relative font-sans cursor-none"
       onContextMenu={handleContextMenu}
       onClick={handleDesktopClick}
     >
-      {isBooting && <BootScreen onComplete={() => setIsBooting(false)} />}
-
+      {isBooting && <BootScreen onComplete={handleBootComplete} />}
+      <AnimatePresence>
+        {!isBooting && isLocked && (
+          <LockScreen
+            onUnlock={() => setIsLocked(false)}
+            wallpaper={wallpaper}
+          />
+        )}
+      </AnimatePresence>
       <MacOSCursor />
 
-      {/* Wallpaper */}
+      {/* Background (Z-0) */}
       <div
-        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out hover:scale-105"
+        className="absolute inset-0 bg-cover bg-center transition-all duration-700 ease-in-out hover:scale-105 z-0"
         style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2670&auto=format&fit=crop')",
+          backgroundImage: `url('${wallpaper}')`,
+          filter: `brightness(${systemState.brightness}%)`,
         }}
       />
 
-      {!isBooting && (
+      {!isBooting && !isLocked && (
         <>
-          <MenuBar
-            onSearchClick={() => setIsSearchOpen(true)}
-            activeWindowId={activeWindowId}
-            onCloseWindow={() => activeWindowId && closeWindow(activeWindowId)}
-            onRestart={() => setIsBooting(true)}
-            onOpenAbout={() => openWindow("about", null)}
-            onNewFile={handleNewFile} // Pass handler
-          />
+          {/* Menu Bar (Z-50) */}
+          <div className="relative z-50">
+            <MenuBar
+              onSearchClick={() => setIsSearchOpen(true)}
+              activeWindowId={activeWindowId}
+              onCloseWindow={() =>
+                activeWindowId && closeWindow(activeWindowId)
+              }
+              onRestart={() => setIsBooting(true)}
+              onOpenAbout={() => openWindow("about", null)}
+              onNewFile={handleNewFile}
+              onOpenSettings={() => openWindow("settings", null)}
+              onLock={() => setIsLocked(true)} // Pass onLock function
+              onOpenWallpaper={() => setIsWallpaperSelectorOpen(true)} // Pass Wallpaper Opener
+              systemState={systemState}
+              setSystemState={setSystemState}
+            />
+          </div>
 
-          <SpotlightSearch
-            isOpen={isSearchOpen}
-            onClose={() => setIsSearchOpen(false)}
-            onOpenApp={(id) => openWindow(id, null)}
-          />
+          {/* Overlays (Spotlight/Context) - Z-50 */}
+          <div className="relative z-50">
+            <SpotlightSearch
+              isOpen={isSearchOpen}
+              onClose={() => setIsSearchOpen(false)}
+              onOpenApp={(id) => openWindow(id, null)}
+            />
+            <DesktopContextMenu
+              x={contextMenu.x}
+              y={contextMenu.y}
+              isOpen={contextMenu.isOpen}
+              onClose={() => setContextMenu({ ...contextMenu, isOpen: false })}
+              onNewFile={handleNewFile}
+              onRefresh={() => window.location.reload()}
+              onOpenWallpaper={() => setIsWallpaperSelectorOpen(true)}
+              onOpenAbout={() => openWindow("about", null)}
+            />
+          </div>
 
-          <DesktopContextMenu
-            x={contextMenu.x}
-            y={contextMenu.y}
-            isOpen={contextMenu.isOpen}
-            onClose={() => setContextMenu({ ...contextMenu, isOpen: false })}
-            onNewFile={handleNewFile}
-            onRefresh={() => window.location.reload()}
-          />
-
-          {/* Desktop Layer */}
-          <div className="absolute top-10 left-0 p-6 pt-12 md:p-8 grid grid-flow-col auto-cols-min grid-rows-[repeat(auto-fill,110px)] gap-6 h-[calc(100vh-140px)] w-full pointer-events-none z-10">
-            <div className="pointer-events-auto flex flex-col gap-6 flex-wrap">
-              {windows.map((win, index) => (
-                <DesktopIcon
-                  key={win.id}
-                  icon={win.icon}
-                  label={win.title}
-                  delay={index}
-                  onOpen={(origin) => openWindow(win.id, origin)}
-                />
-              ))}
+          {/* Desktop Icons (Z-10) */}
+          <div
+            className="absolute top-10 left-0 p-6 pt-12 md:p-8 flex flex-col gap-6 h-[calc(100vh-140px)] pointer-events-none z-10"
+            style={{ filter: `brightness(${systemState.brightness}%)` }}
+          >
+            <div className="pointer-events-auto flex flex-col gap-6 flex-wrap content-start h-full desktop-icon-grid">
+              {windows.map((win, index) => {
+                if (
+                  ["settings", "finder"].includes(win.id) ||
+                  win.id.startsWith("img-") ||
+                  win.id.startsWith("note-")
+                )
+                  return null;
+                return (
+                  <DesktopIcon
+                    key={win.id}
+                    id={win.id}
+                    icon={win.icon}
+                    label={win.title}
+                    delay={index}
+                    onOpen={(origin) => openWindow(win.id, origin)}
+                  />
+                );
+              })}
             </div>
           </div>
 
-          {/* Windows Layer */}
-          {windows.map((win, index) => (
-            <Window
-              key={win.id}
-              {...win}
-              onClose={closeWindow}
-              onMinimize={minimizeWindow}
-              onFocus={focusWindow}
-              dockIndex={index}
-              totalDockItems={windows.length + 1}
-            />
-          ))}
+          {/* Windows (Z-20+) */}
+          <div style={{ filter: `brightness(${systemState.brightness}%)` }}>
+            {windows.map((win, index) => {
+              let content = win.content;
+              if (win.id === "settings") {
+                content = (
+                  <SystemPreferences
+                    currentWallpaper={wallpaper}
+                    onWallpaperChange={setWallpaper}
+                    onLock={() => setIsLocked(true)}
+                  />
+                );
+              } else if (win.id === "finder") {
+                const desktopApps = windows.filter(
+                  (w) =>
+                    !["finder", "settings"].includes(w.id) &&
+                    !w.id.startsWith("img-") &&
+                    !w.id.startsWith("note-")
+                );
+                content = (
+                  <Finder
+                    onOpenFile={handleOpenFile}
+                    desktopItems={desktopApps}
+                  />
+                );
+              }
+              return (
+                <Window
+                  key={win.id}
+                  {...win}
+                  zIndex={win.zIndex < 20 ? 20 + index : win.zIndex}
+                  content={content}
+                  onClose={closeWindow}
+                  onMinimize={minimizeWindow}
+                  onFocus={focusWindow}
+                  dockIndex={index}
+                  totalDockItems={windows.length + 1}
+                />
+              );
+            })}
+          </div>
 
-          {/* Dock */}
-          <Taskbar
-            apps={windows}
-            onOpen={(id) => openWindow(id, null)}
-            onSearch={() => setIsSearchOpen(true)}
-          />
+          <div className="relative z-50">
+            <Taskbar
+              apps={windows.filter(
+                (w) => !w.id.startsWith("img-") && !w.id.startsWith("note-")
+              )}
+              onOpen={(id) => openWindow(id, null)}
+              onSearch={() => setIsSearchOpen(true)}
+            />
+          </div>
+
+          {/* Wallpaper Selector Modal */}
+          <AnimatePresence>
+            {isWallpaperSelectorOpen && (
+              <div
+                className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+                onClick={() => setIsWallpaperSelectorOpen(false)}
+              >
+                <WallpaperSelector
+                  currentWallpaper={wallpaper}
+                  onWallpaperChange={setWallpaper}
+                  onClose={() => setIsWallpaperSelectorOpen(false)}
+                />
+              </div>
+            )}
+          </AnimatePresence>
         </>
       )}
     </div>

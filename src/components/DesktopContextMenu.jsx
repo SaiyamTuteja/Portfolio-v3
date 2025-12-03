@@ -8,7 +8,10 @@ export default function DesktopContextMenu({
   onClose,
   onNewFile,
   onRefresh,
+  onOpenWallpaper,
+  onOpenAbout,
 }) {
+  // <-- Accepts onOpenAbout
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -21,6 +24,47 @@ export default function DesktopContextMenu({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, onClose]);
 
+  const menuItems = [
+    {
+      label: "New Folder",
+      action: () => {
+        console.log("Action: New Folder");
+        onClose();
+      },
+      disabled: false,
+    },
+    { label: "New File", action: onNewFile, disabled: false },
+    { type: "separator" },
+    // FIX: Open 'about' window when 'Get Info' is clicked
+    {
+      label: "Get Info",
+      action: () => {
+        onOpenAbout();
+        onClose();
+      },
+      disabled: false,
+    },
+    { type: "separator" },
+    // FIX: Open Wallpaper Selector modal
+    {
+      label: "Change Desktop Background...",
+      action: () => {
+        onOpenWallpaper();
+        onClose();
+      },
+      disabled: false,
+    },
+    { type: "separator" },
+    { label: "Use Stacks", disabled: true },
+    { label: "Sort By", disabled: true },
+    { label: "Clean Up", disabled: true },
+    { label: "Clean Up By", disabled: true },
+    { type: "separator" },
+    { label: "Show View Options", disabled: true },
+    { type: "separator" },
+    { label: "Refresh", action: onRefresh, disabled: false },
+  ];
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -31,47 +75,31 @@ export default function DesktopContextMenu({
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.1 }}
           style={{ top: y, left: x }}
-          className="absolute z-[9999] w-48 bg-gray-900/90 backdrop-blur-xl border border-white/20 rounded-lg shadow-2xl py-1 overflow-hidden"
-          onContextMenu={(e) => e.preventDefault()} // Prevent native menu inside custom menu
+          className="absolute z-[9999] w-60 bg-gray-900/95 backdrop-blur-xl border border-white/20 rounded-lg shadow-2xl py-1.5 overflow-hidden"
+          onContextMenu={(e) => e.preventDefault()}
         >
-          <MenuItem label="New Folder" disabled />
-          <MenuItem
-            label="New File"
-            onClick={() => {
-              onNewFile();
-              onClose();
-            }}
-          />
-          <div className="h-[1px] bg-white/10 my-1 mx-2"></div>
-          <MenuItem label="Get Info" disabled />
-          <MenuItem label="Change Wallpaper..." disabled />
-          <div className="h-[1px] bg-white/10 my-1 mx-2"></div>
-          <MenuItem
-            label="Refresh"
-            onClick={() => {
-              onRefresh();
-              onClose();
-            }}
-          />
+          {menuItems.map((item, idx) =>
+            item.type === "separator" ? (
+              <div key={idx} className="h-[1px] bg-white/10 my-1 mx-3"></div>
+            ) : (
+              <button
+                key={idx}
+                disabled={item.disabled}
+                onClick={item.action}
+                className={`w-full text-left px-4 py-1.5 text-[13px] flex justify-between items-center group transition-colors
+                  ${
+                    item.disabled
+                      ? "text-gray-500 cursor-default"
+                      : "text-white hover:bg-blue-600 active:bg-blue-700 cursor-pointer"
+                  }
+                `}
+              >
+                {item.label}
+              </button>
+            )
+          )}
         </motion.div>
       )}
     </AnimatePresence>
-  );
-}
-
-function MenuItem({ label, onClick, disabled }) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={`w-full text-left px-4 py-1.5 text-sm flex justify-between items-center group
-        ${
-          disabled
-            ? "text-gray-500 cursor-default"
-            : "text-white hover:bg-blue-600 cursor-pointer"
-        }`}
-    >
-      {label}
-    </button>
   );
 }
