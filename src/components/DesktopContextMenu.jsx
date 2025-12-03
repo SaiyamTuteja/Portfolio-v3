@@ -9,9 +9,8 @@ export default function DesktopContextMenu({
   onNewFile,
   onRefresh,
   onOpenWallpaper,
-  onOpenAbout,
+  onOpenAbout, // Received props
 }) {
-  // <-- Accepts onOpenAbout
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -28,14 +27,20 @@ export default function DesktopContextMenu({
     {
       label: "New Folder",
       action: () => {
-        console.log("Action: New Folder");
+        console.log("New Folder");
         onClose();
       },
       disabled: false,
     },
-    { label: "New File", action: onNewFile, disabled: false },
+    {
+      label: "New File",
+      action: () => {
+        onNewFile();
+        onClose();
+      },
+      disabled: false,
+    },
     { type: "separator" },
-    // FIX: Open 'about' window when 'Get Info' is clicked
     {
       label: "Get Info",
       action: () => {
@@ -43,9 +48,7 @@ export default function DesktopContextMenu({
         onClose();
       },
       disabled: false,
-    },
-    { type: "separator" },
-    // FIX: Open Wallpaper Selector modal
+    }, // Opens About Me
     {
       label: "Change Desktop Background...",
       action: () => {
@@ -53,7 +56,7 @@ export default function DesktopContextMenu({
         onClose();
       },
       disabled: false,
-    },
+    }, // Opens Wallpaper Selector
     { type: "separator" },
     { label: "Use Stacks", disabled: true },
     { label: "Sort By", disabled: true },
@@ -62,7 +65,14 @@ export default function DesktopContextMenu({
     { type: "separator" },
     { label: "Show View Options", disabled: true },
     { type: "separator" },
-    { label: "Refresh", action: onRefresh, disabled: false },
+    {
+      label: "Refresh",
+      action: () => {
+        onRefresh();
+        onClose();
+      },
+      disabled: false,
+    },
   ];
 
   return (
@@ -75,7 +85,7 @@ export default function DesktopContextMenu({
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.1 }}
           style={{ top: y, left: x }}
-          className="absolute z-[9999] w-60 bg-gray-900/95 backdrop-blur-xl border border-white/20 rounded-lg shadow-2xl py-1.5 overflow-hidden"
+          className="absolute z-[9999] w-64 bg-[#1e1e1e]/90 backdrop-blur-xl border border-white/20 rounded-lg shadow-2xl py-1.5 overflow-hidden font-sans select-none"
           onContextMenu={(e) => e.preventDefault()}
         >
           {menuItems.map((item, idx) =>
@@ -86,7 +96,7 @@ export default function DesktopContextMenu({
                 key={idx}
                 disabled={item.disabled}
                 onClick={item.action}
-                className={`w-full text-left px-4 py-1.5 text-[13px] flex justify-between items-center group transition-colors
+                className={`w-full text-left px-4 py-1 text-[13px] flex justify-between items-center group transition-colors
                   ${
                     item.disabled
                       ? "text-gray-500 cursor-default"

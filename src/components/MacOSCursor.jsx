@@ -9,7 +9,6 @@ export default function MacOSCursor() {
   const cursorXSpring = useSpring(cursorX, springConfig);
   const cursorYSpring = useSpring(cursorY, springConfig);
 
-  const [isPointer, setIsPointer] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
   const [isText, setIsText] = useState(false);
   const [clickRipple, setClickRipple] = useState(false);
@@ -39,20 +38,6 @@ export default function MacOSCursor() {
         target.closest("textarea");
 
       setIsText(!!isTextInput);
-
-      // Check for pointer cursor
-      const isClickable =
-        target.tagName === "BUTTON" ||
-        target.closest("button") ||
-        target.tagName === "A" ||
-        target.closest("a") ||
-        target.classList.contains("cursor-pointer") ||
-        target.closest(".cursor-pointer") ||
-        target.closest(".desktop-icon") ||
-        target.closest(".window-header") ||
-        target.closest(".cc-toggle");
-
-      setIsPointer(!!isClickable && !isTextInput);
     };
 
     window.addEventListener("mousemove", moveMouse);
@@ -129,46 +114,6 @@ export default function MacOSCursor() {
                   dy="1"
                   stdDeviation="0.8"
                   floodOpacity="0.3"
-                />
-              </filter>
-            </defs>
-          </svg>
-        ) : isPointer ? (
-          /* AUTHENTIC MAC POINTER HAND (Updated) */
-          <svg
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            style={{ marginLeft: "-10px", marginTop: "-2px" }}
-          >
-            <g filter="url(#handShadow)">
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M10.5 2C10.5 2 10.5 4.5 10.5 11H9.5C7.5 11 7 13 8.5 14.5L12 18H17.5C18.5 18 19.5 17 19.5 16V12C19.5 11 18.5 11 18.5 12V13H17.5V10C17.5 9.5 17 9 16.5 9C16 9 15.5 9.5 15.5 10V13H14.5V8.5C14.5 8 14 7.5 13.5 7.5C13 7.5 12.5 8 12.5 8.5V12H11.5V3C11.5 2.5 11 2 10.5 2Z"
-                fill="white"
-                stroke="black"
-                strokeWidth="1.2"
-                strokeLinejoin="round"
-              />
-            </g>
-            <defs>
-              <filter
-                id="handShadow"
-                x="-2"
-                y="-2"
-                width="30"
-                height="30"
-                filterUnits="userSpaceOnUse"
-                colorInterpolationFilters="sRGB"
-              >
-                <feDropShadow
-                  dx="0"
-                  dy="1.2"
-                  stdDeviation="1.2"
-                  floodOpacity="0.35"
                 />
               </filter>
             </defs>

@@ -2,16 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* FORCE SYSTEM CURSOR HIDDEN GLOBALLY */
+/* Hide default cursor everywhere */
+*,
+*::before,
+*::after,
 html,
 body,
 :root,
 #root,
-* {
-  cursor: none !important;
-}
-
-/* Ensure cursor stays hidden on all interactive elements */
 button,
 a,
 input,
@@ -22,10 +20,11 @@ select,
   cursor: none !important;
 }
 
-/* Prevent cursor from showing on hover states */
+/* Also hide on hover/active/focus states */
 *:hover,
 *:active,
-*:focus {
+*:focus,
+*:focus-visible {
   cursor: none !important;
 }
 
@@ -56,13 +55,4 @@ select,
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
-}
-
-/* Prevent text selection cursor from showing */
-::selection {
-  cursor: none !important;
-}
-
-::-moz-selection {
-  cursor: none !important;
 }

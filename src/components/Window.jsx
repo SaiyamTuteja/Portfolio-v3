@@ -20,10 +20,8 @@ export default function Window({
   const dragControls = useDragControls();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  // Check if this window needs full-bleed layout (No padding/default bg)
-  // Finder, Resume, Notepad handle their own layout.
-  const isFullBleedApp = ["finder", "resume", "notepad"].some((appId) =>
-    id.includes(appId)
+  const isFullBleedApp = ["finder", "resume", "notepad", "settings"].some(
+    (appId) => id.includes(appId)
   );
 
   useEffect(() => {
@@ -69,7 +67,7 @@ export default function Window({
       top: "32px",
       left: 0,
       width: "100vw",
-      height: "calc(100vh - 32px - 90px)",
+      height: "calc(100vh - 32px - 80px)", // Leave space for Dock
       borderRadius: "0px 0px 12px 12px",
       filter: "blur(0px)",
       transitionEnd: { transform: "none" },
@@ -116,8 +114,8 @@ export default function Window({
           dragControls={dragControls}
           dragMomentum={false}
           onMouseDown={() => onFocus(id)}
-          style={{ zIndex }}
-          // Dynamic Background: Solid color for Finder/Notepad, Glass for others
+          // --- FIX IS HERE: Boost Z-Index drastically when Maximized ---
+          style={{ zIndex: isMaximized ? 9999 : zIndex }}
           className={`absolute flex flex-col overflow-hidden shadow-2xl border border-white/20 
             ${
               isMaximized ? "bg-[#1e1e1e]" : "bg-slate-900/85 backdrop-blur-2xl"
@@ -167,7 +165,6 @@ export default function Window({
           </div>
 
           {/* Content Area */}
-          {/* If FullBleed App (Finder), remove default padding/bg styles */}
           <div
             className={`flex-1 overflow-auto custom-scrollbar 
             ${

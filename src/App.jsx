@@ -40,19 +40,17 @@ import SystemPreferences from "./apps/SystemPreferences";
 import Terminal from "./apps/Terminal";
 
 export default function App() {
-  // --- STATE ---
   const [isBooting, setIsBooting] = useState(true);
   const [isLocked, setIsLocked] = useState(false);
   const [isWallpaperSelectorOpen, setIsWallpaperSelectorOpen] = useState(false);
-  const [maxZIndex, setMaxZIndex] = useState(20);
+  const [maxZIndex, setMaxZIndex] = useState(20); // Windows start at 20
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [activeWindowId, setActiveWindowId] = useState(null);
   const [contextMenu, setContextMenu] = useState({ isOpen: false, x: 0, y: 0 });
   const [wallpaper, setWallpaper] = useState(
     "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=2874&auto=format&fit=crop"
-  ); // Dark Nebula Default
+  );
 
-  // System State (Wi-Fi, Brightness, etc.)
   const [systemState, setSystemState] = useState({
     wifi: true,
     bluetooth: true,
@@ -60,7 +58,6 @@ export default function App() {
     volume: 75,
   });
 
-  // Window Definitions
   const [windows, setWindows] = useState([
     {
       id: "finder",
@@ -152,11 +149,11 @@ export default function App() {
     },
   ]);
 
-  // --- WINDOW MANAGEMENT HANDLERS (Simplified for brevity) ---
   const handleBootComplete = () => {
     setIsBooting(false);
     setIsLocked(true);
   };
+
   const openWindow = (id, originRect) => {
     setWindows((prev) =>
       prev.map((win) => {
@@ -175,6 +172,7 @@ export default function App() {
     setMaxZIndex((prev) => prev + 1);
     setActiveWindowId(id);
   };
+
   const closeWindow = (id) => {
     setWindows((prev) =>
       prev.map((win) => (win.id === id ? { ...win, isOpen: false } : win))
@@ -197,7 +195,6 @@ export default function App() {
     setActiveWindowId(id);
   };
 
-  // File and App Handlers
   const handleOpenFile = (file) => {
     if (file.type === "app") {
       openWindow(file.id, null);
@@ -263,7 +260,6 @@ export default function App() {
       ]);
   };
 
-  // Context Menu Handlers
   const handleContextMenu = (e) => {
     e.preventDefault();
     const clickedIcon =
@@ -276,7 +272,6 @@ export default function App() {
     if (contextMenu.isOpen) setContextMenu({ ...contextMenu, isOpen: false });
   };
 
-  // Keyboard Shortcuts (Same as previous turn)
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.altKey && e.code === "Space") {
@@ -326,7 +321,6 @@ export default function App() {
 
       {!isBooting && !isLocked && (
         <>
-          {/* Menu Bar (Z-50) */}
           <div className="relative z-50">
             <MenuBar
               onSearchClick={() => setIsSearchOpen(true)}
@@ -338,14 +332,13 @@ export default function App() {
               onOpenAbout={() => openWindow("about", null)}
               onNewFile={handleNewFile}
               onOpenSettings={() => openWindow("settings", null)}
-              onLock={() => setIsLocked(true)} // Pass onLock function
-              onOpenWallpaper={() => setIsWallpaperSelectorOpen(true)} // Pass Wallpaper Opener
+              onLock={() => setIsLocked(true)}
+              onOpenWallpaper={() => setIsWallpaperSelectorOpen(true)}
               systemState={systemState}
               setSystemState={setSystemState}
             />
           </div>
 
-          {/* Overlays (Spotlight/Context) - Z-50 */}
           <div className="relative z-50">
             <SpotlightSearch
               isOpen={isSearchOpen}
@@ -364,34 +357,35 @@ export default function App() {
             />
           </div>
 
-          {/* Desktop Icons (Z-10) */}
+          {/* Desktop Icons - FIXED: Z-INDEX 0 (Bottom Layer) */}
           <div
-            className="absolute top-10 left-0 p-6 pt-12 md:p-8 flex flex-col gap-6 h-[calc(100vh-140px)] pointer-events-none z-10"
+            className="absolute top-10 left-0 p-6 pt-12 md:p-8 grid grid-flow-col auto-rows-[110px] gap-4 h-[calc(100vh-140px)] w-full pointer-events-none z-0"
             style={{ filter: `brightness(${systemState.brightness}%)` }}
           >
             <div className="pointer-events-auto flex flex-col gap-6 flex-wrap content-start h-full desktop-icon-grid">
               {windows.map((win, index) => {
                 if (
-                  ["settings", "finder"].includes(win.id) ||
+                  ["settings", "finder", "terminal"].includes(win.id) ||
                   win.id.startsWith("img-") ||
                   win.id.startsWith("note-")
                 )
                   return null;
                 return (
-                  <DesktopIcon
-                    key={win.id}
-                    id={win.id}
-                    icon={win.icon}
-                    label={win.title}
-                    delay={index}
-                    onOpen={(origin) => openWindow(win.id, origin)}
-                  />
+                  <div key={win.id} className="pointer-events-auto">
+                    <DesktopIcon
+                      id={win.id}
+                      icon={win.icon}
+                      label={win.title}
+                      delay={index}
+                      onOpen={(origin) => openWindow(win.id, origin)}
+                    />
+                  </div>
                 );
               })}
             </div>
           </div>
 
-          {/* Windows (Z-20+) */}
+          {/* Windows (Z-20+) - Dynamic Z-Index */}
           <div style={{ filter: `brightness(${systemState.brightness}%)` }}>
             {windows.map((win, index) => {
               let content = win.content;
@@ -417,11 +411,15 @@ export default function App() {
                   />
                 );
               }
+              // Base Z-Index for windows is 20 (above icons at 0)
+              const baseZ = 20;
+              const dynamicZ = win.zIndex < baseZ ? baseZ + index : win.zIndex;
+
               return (
                 <Window
                   key={win.id}
                   {...win}
-                  zIndex={win.zIndex < 20 ? 20 + index : win.zIndex}
+                  zIndex={dynamicZ} // Pass safe Z-Index
                   content={content}
                   onClose={closeWindow}
                   onMinimize={minimizeWindow}
@@ -443,7 +441,6 @@ export default function App() {
             />
           </div>
 
-          {/* Wallpaper Selector Modal */}
           <AnimatePresence>
             {isWallpaperSelectorOpen && (
               <div

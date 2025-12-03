@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ControlCenter from "./ControlCenter";
-
+import appleLogo from "../Image/apple-logo.png";
 // Custom Icons (Definitions remain outside the component for efficiency)
 const AppleIcon = () => (
   <svg
@@ -235,7 +235,14 @@ export default function MenuBar({
               activeMenu === "apple" ? "bg-white/20" : "hover:bg-white/10"
             }`}
           >
-            <AppleIcon />
+            {/* --- REPLACED WITH LOCAL IMAGE --- */}
+            <img
+              src={appleLogo}
+              alt="Apple Logo"
+              className="h-[16px] w-auto object-contain"
+              // Optional: Add 'brightness-200' or 'invert' if your PNG is black and needs to be white
+              // style={{ filter: 'brightness(0) invert(1)' }}
+            />
           </button>
           <Dropdown isOpen={activeMenu === "apple"} items={menuItems.apple} />
         </div>
