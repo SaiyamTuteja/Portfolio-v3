@@ -72,19 +72,15 @@
 //     </motion.button>
 //   );
 // }
+
+import { useRef, useEffect } from "react";
 import { motion, useAnimation } from "framer-motion";
 import AppIcon from "./AppIcon";
 
 export default function Taskbar({ apps, onOpen, onSearch }) {
-  // FIXED: Now calls onOpen to open the internal window
-  const handleSafariClick = () => {
-    onOpen("safari");
-  };
-
-  // Mail still uses external link (standard behavior)
-  const handleMailClick = () => {
-    window.location.href = "mailto:saiyamtuteja@gmail.com";
-  };
+  const handleSafariClick = () => onOpen("safari");
+  const handleMailClick = () =>
+    (window.location.href = "mailto:saiyamtuteja@gmail.com");
 
   return (
     <div className="fixed bottom-2 left-1/2 -translate-x-1/2 z-[10000]">
@@ -96,8 +92,15 @@ export default function Taskbar({ apps, onOpen, onSearch }) {
           WebkitBackdropFilter: "blur(20px)",
         }}
       >
-        {/* --- 1. PINNED SAFARI --- */}
-        {/* Check if safari is open in the apps list to show the 'active' dot */}
+        {/* Pinned Apps */}
+        <DockItem
+          onClick={() => onOpen("finder")}
+          label="Finder"
+          isOpen={apps.find((a) => a.id === "finder")?.isOpen}
+        >
+          <AppIcon id="finder" title="Finder" size={48} />
+        </DockItem>
+
         <DockItem
           onClick={handleSafariClick}
           label="Safari"
@@ -106,19 +109,15 @@ export default function Taskbar({ apps, onOpen, onSearch }) {
           <AppIcon id="safari" title="Safari" size={48} />
         </DockItem>
 
-        {/* --- 2. PINNED MAIL --- */}
         <DockItem onClick={handleMailClick} label="Mail">
           <AppIcon id="mail" title="Mail" size={48} />
         </DockItem>
 
-        {/* Divider */}
         <div className="w-[1px] h-10 bg-white/20 mx-1 self-center rounded-full"></div>
 
-        {/* --- 3. RUNNING APPS --- */}
+        {/* Running Apps */}
         {apps.map((app) => {
-          // IMPORTANT: Skip 'safari' here because we manually placed it pinned on the left
-          if (app.id === "safari") return null;
-
+          if (["finder", "safari", "trash"].includes(app.id)) return null;
           return (
             <DockItem
               key={app.id}
@@ -136,10 +135,24 @@ export default function Taskbar({ apps, onOpen, onSearch }) {
           );
         })}
 
-        {/* Separator */}
-        <div className="w-[1px] h-10 bg-white/20 mx-1 self-center rounded-full"></div>
+        {apps.filter((a) => !["finder", "safari", "trash"].includes(a.id))
+          .length > 0 && (
+          <div className="w-[1px] h-10 bg-white/20 mx-1 self-center rounded-full"></div>
+        )}
 
-        {/* --- 4. SPOTLIGHT --- */}
+        {/* --- SYSTEM --- */}
+
+        {/* TRASH ICON WITH ID FOR DROP TARGET */}
+        <div id="trash-dock-icon">
+          <DockItem
+            onClick={() => onOpen("trash")}
+            label="Trash"
+            isOpen={apps.find((a) => a.id === "trash")?.isOpen}
+          >
+            <AppIcon id="trash" title="Trash" size={48} />
+          </DockItem>
+        </div>
+
         <DockItem onClick={onSearch} label="Spotlight">
           <AppIcon id="launchpad" title="Spotlight" size={48} />
         </DockItem>
@@ -148,7 +161,6 @@ export default function Taskbar({ apps, onOpen, onSearch }) {
   );
 }
 
-// DockItem Component
 function DockItem({ children, onClick, isOpen, label }) {
   const controls = useAnimation();
 

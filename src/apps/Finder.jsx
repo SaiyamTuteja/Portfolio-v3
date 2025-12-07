@@ -7,19 +7,9 @@ import {
   Download,
   FileText,
   Image as ImageIcon,
-  Music,
-  Video,
   ArrowLeft,
   ArrowRight,
-  ChevronRight,
   Github,
-  ExternalLink,
-  Star,
-  User,
-  Code2,
-  Briefcase,
-  Cpu,
-  MessageSquare,
 } from "lucide-react";
 
 // --- DATA CONFIGURATION ---
@@ -304,7 +294,7 @@ const fileSystem = {
 };
 
 export default function Finder({ onOpenFile, desktopItems = [] }) {
-  const [activeTab, setActiveTab] = useState("desktop"); // Default to desktop to show the issue
+  const [activeTab, setActiveTab] = useState("desktop");
   const [currentPath, setCurrentPath] = useState(["desktop"]);
   const [viewMode, setViewMode] = useState("folder");
 
@@ -313,9 +303,7 @@ export default function Finder({ onOpenFile, desktopItems = [] }) {
     const mappedApps = desktopItems.map((item) => ({
       id: item.id,
       name: item.title,
-      // Crucial: Mark these as 'app' type so `handleNavigate` knows what to do
-      type:
-        item.id === "resume" ? "pdf" : item.id.includes("file") ? "doc" : "app",
+      type: item.id === "resume" ? "pdf" : item.id.includes("file") ? "doc" : "app",
       icon: item.icon,
       color: "text-blue-500",
       tags: ["personal"],
@@ -341,17 +329,12 @@ export default function Finder({ onOpenFile, desktopItems = [] }) {
   }
 
   const handleNavigate = (item) => {
-    // 1. Enter Folder
     if (item.type === "folder") {
       setViewMode("folder");
       setCurrentPath([...currentPath, item.id]);
-    }
-    // 2. Open External Link (GitHub)
-    else if (item.type === "link") {
+    } else if (item.type === "link") {
       window.open(item.url, "_blank");
-    }
-    // 3. Open App/File (Pass back to App.jsx)
-    else {
+    } else {
       if (onOpenFile) {
         onOpenFile(item);
       }
@@ -389,42 +372,29 @@ export default function Finder({ onOpenFile, desktopItems = [] }) {
     <div className="flex h-full w-full bg-white text-gray-900 font-sans overflow-hidden">
       {/* SIDEBAR */}
       <div className="w-48 bg-[#f5f5f7]/95 backdrop-blur-xl border-r border-gray-200 flex flex-col pt-3 pb-3 shrink-0">
-        <div className="px-4 mb-1 text-[11px] font-semibold text-gray-500/80">
-          Favorites
-        </div>
+        <div className="px-4 mb-1 text-[11px] font-semibold text-gray-500/80">Favorites</div>
         <div className="flex-1 overflow-y-auto space-y-0.5 px-2 mb-4">
           {sidebarGroups.favorites.map((item) => (
             <button
               key={item.id}
               onClick={() => handleSidebarClick(item.id, "folder")}
               className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-[6px] text-[13px] transition-colors ${
-                activeTab === item.id
-                  ? "bg-gray-300/50 font-medium text-black"
-                  : "text-gray-600 hover:bg-gray-200/50"
+                activeTab === item.id ? "bg-gray-300/50 font-medium text-black" : "text-gray-600 hover:bg-gray-200/50"
               }`}
             >
-              <item.icon
-                size={16}
-                className={
-                  activeTab === item.id ? "text-blue-600" : "text-gray-500"
-                }
-              />
+              <item.icon size={16} className={activeTab === item.id ? "text-blue-600" : "text-gray-500"} />
               {item.label}
             </button>
           ))}
         </div>
-        <div className="px-4 mt-2 mb-1 text-[11px] font-semibold text-gray-500/80">
-          Tags
-        </div>
+        <div className="px-4 mt-2 mb-1 text-[11px] font-semibold text-gray-500/80">Tags</div>
         <div className="px-2 space-y-0.5">
           {sidebarGroups.tags.map((tag) => (
             <button
               key={tag.id}
               onClick={() => handleSidebarClick(tag.id, "tag")}
               className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-[6px] text-[13px] transition-colors ${
-                activeTab === tag.id
-                  ? "bg-gray-300/50 font-medium text-black"
-                  : "text-gray-600 hover:bg-gray-200/50"
+                activeTab === tag.id ? "bg-gray-300/50 font-medium text-black" : "text-gray-600 hover:bg-gray-200/50"
               }`}
             >
               <div className={`w-2.5 h-2.5 rounded-full ${tag.color}`}></div>
@@ -443,9 +413,7 @@ export default function Finder({ onOpenFile, desktopItems = [] }) {
                 onClick={handleBack}
                 disabled={viewMode === "tag" || currentPath.length <= 1}
                 className={`p-1 rounded hover:bg-gray-100 ${
-                  viewMode === "tag" || currentPath.length <= 1
-                    ? "opacity-30 cursor-default"
-                    : "cursor-pointer"
+                  viewMode === "tag" || currentPath.length <= 1 ? "opacity-30 cursor-default" : "cursor-pointer"
                 }`}
               >
                 <ArrowLeft size={18} />
@@ -456,14 +424,10 @@ export default function Finder({ onOpenFile, desktopItems = [] }) {
             </div>
             <div className="flex items-center text-sm font-semibold text-gray-700 select-none">
               {viewMode === "tag"
-                ? `Tag: ${
-                    activeTab.charAt(0).toUpperCase() + activeTab.slice(1)
-                  }`
+                ? `Tag: ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`
                 : currentPath.length > 1
-                ? dynamicFileSystem[currentPath[currentPath.length - 1]]
-                    ?.name || "Folder"
-                : sidebarGroups.favorites.find((i) => i.id === activeTab)
-                    ?.label || "Home"}
+                ? dynamicFileSystem[currentPath[currentPath.length - 1]]?.name || "Folder"
+                : sidebarGroups.favorites.find((i) => i.id === activeTab)?.label || "Home"}
             </div>
           </div>
         </div>
@@ -477,21 +441,28 @@ export default function Finder({ onOpenFile, desktopItems = [] }) {
                   onDoubleClick={() => handleNavigate(file)}
                   className="flex flex-col items-center gap-1.5 group p-3 rounded-md hover:bg-[#e4eefb] focus:bg-[#ccdcf5] focus:outline-none transition-colors border border-transparent hover:border-[#d0e0f5]"
                 >
+                  {/* --- FIX: CHECK IF ICON IS STRING (IMAGE PATH) OR COMPONENT --- */}
                   {file.type === "image" && file.src ? (
                     <img
                       src={file.src}
                       alt={file.name}
                       className="w-12 h-12 rounded object-cover shadow-sm pointer-events-none"
                     />
+                  ) : typeof file.icon === "string" ? (
+                    <img
+                      src={file.icon}
+                      alt={file.name}
+                      className="w-12 h-12 object-contain drop-shadow-sm pointer-events-none"
+                    />
                   ) : (
                     <file.icon
                       strokeWidth={1}
                       size={48}
-                      className={`${
-                        file.color || "text-blue-500"
-                      } fill-current/10 drop-shadow-sm`}
+                      className={`${file.color || "text-blue-500"} fill-current/10 drop-shadow-sm`}
                     />
                   )}
+                  {/* ----------------------------------------------------------- */}
+                  
                   <span className="text-[12px] text-center text-gray-700 font-medium w-full truncate px-1 rounded leading-tight">
                     {file.name}
                   </span>
