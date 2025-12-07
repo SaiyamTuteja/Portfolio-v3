@@ -43,7 +43,7 @@ import Terminal from "./apps/Terminal";
 import TrashBin from "./apps/TrashBin";
 
 // Assets
-import safariIcon from "./image/safari.png";
+// import safariIcon from "./image/safari.png";
 
 export default function App() {
   const [isBooting, setIsBooting] = useState(true);
