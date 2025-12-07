@@ -122,13 +122,3 @@ Open [http://localhost:5173](https://www.google.com/search?q=http://localhost:51
 This project is open-source and available under the [MIT License](https://www.google.com/search?q=LICENSE).
 
 Made with ❤️ by Saiyam Tuteja.
-
-```
-
-### **How to Add Screenshots (Optional but Recommended)**
-1.  Take screenshots of your Lock Screen, Desktop, Terminal, and AI Chat.
-2.  Save them in your `src/image/` folder (e.g., `desktop-preview.png`).
-3.  The README code above already links to them. Just ensure the file names match!
-
-This `README.md` is professional, highlights your technical skills, and guides recruiters or developers perfectly through your project.
-```
