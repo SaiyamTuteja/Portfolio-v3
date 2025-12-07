@@ -26,7 +26,8 @@ import SpotlightSearch from "./components/SpotlightSearch";
 import DesktopContextMenu from "./components/DesktopContextMenu";
 import ImageViewer from "./components/ImageViewer";
 import WallpaperSelector from "./components/WallpaperSelector";
-
+import Safari from "./apps/Safari"; // IMPORT THIS
+import safariIcon from "./image/safari.png"; // IMPORT THIS
 // Apps
 import About from "./apps/About";
 import Projects from "./apps/Projects";
@@ -132,6 +133,16 @@ export default function App() {
       title: "AI Assistant",
       icon: MessageSquare,
       content: <AIAssistant />,
+      isOpen: false,
+      isMinimized: false,
+      zIndex: 20,
+      originRect: null,
+    },
+    {
+      id: "safari",
+      title: "Safari",
+      icon: safariIcon,
+      content: <Safari />,
       isOpen: false,
       isMinimized: false,
       zIndex: 20,
