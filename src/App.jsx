@@ -42,6 +42,10 @@ import SystemPreferences from "./apps/SystemPreferences";
 import Terminal from "./apps/Terminal";
 import TrashBin from "./apps/TrashBin";
 
+<<<<<<< HEAD
+=======
+// Assets
+>>>>>>> cb7ef77de12a856dc99c9838aa49e8f89413f9a4
 import safariIcon from "./image/safari.png";
 
 export default function App() {

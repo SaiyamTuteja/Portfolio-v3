@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ControlCenter from "./ControlCenter";
-import appleLogo from "../Image/apple-logo.png";
+import appleLogo from "../image/apple-logo.png";
 // Custom Icons (Definitions remain outside the component for efficiency)
 const AppleIcon = () => (
   <svg
