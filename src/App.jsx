@@ -42,8 +42,7 @@ import SystemPreferences from "./apps/SystemPreferences";
 import Terminal from "./apps/Terminal";
 import TrashBin from "./apps/TrashBin";
 
-// Assets
-// import safariIcon from "./image/safari.png";
+import safariIcon from "./image/safari.png";
 
 export default function App() {
   const [isBooting, setIsBooting] = useState(true);
@@ -74,7 +73,7 @@ export default function App() {
   const [isDarkText, setIsDarkText] = useState(false);
 
   const [wallpaper, setWallpaper] = useState(
-    "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=2874&auto=format&fit=crop"
+    "https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2560&auto=format&fit=crop"
   );
 
   const [systemState, setSystemState] = useState({
