@@ -27,6 +27,7 @@ import DesktopContextMenu from "./components/DesktopContextMenu";
 import ImageViewer from "./components/ImageViewer";
 import WallpaperSelector from "./components/WallpaperSelector";
 import FileNameModal from "./components/FileNameModal";
+import DesktopWidget from "./components/DesktopWidget";
 
 // Apps
 import Safari from "./apps/Safari";
@@ -42,11 +43,8 @@ import SystemPreferences from "./apps/SystemPreferences";
 import Terminal from "./apps/Terminal";
 import TrashBin from "./apps/TrashBin";
 
-<<<<<<< HEAD
-=======
-// Assets
->>>>>>> cb7ef77de12a856dc99c9838aa49e8f89413f9a4
 import safariIcon from "./image/safari.png";
+import VisitorCounter from "./components/VisitorCounter";
 
 export default function App() {
   const [isBooting, setIsBooting] = useState(true);
@@ -436,14 +434,14 @@ export default function App() {
               setSystemState={setSystemState}
             />
           </div>
-
+          <DesktopWidget />
           <div className="relative z-50">
             <SpotlightSearch
               isOpen={isSearchOpen}
               onClose={() => setIsSearchOpen(false)}
               onOpenApp={(id) => openWindow(id)}
             />
-
+            <VisitorCounter />
             <DesktopContextMenu
               x={contextMenu.x}
               y={contextMenu.y}
