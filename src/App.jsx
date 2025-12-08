@@ -42,7 +42,7 @@ import Finder from "./apps/Finder";
 import SystemPreferences from "./apps/SystemPreferences";
 import Terminal from "./apps/Terminal";
 import TrashBin from "./apps/TrashBin";
-
+import { Analytics } from "@vercel/analytics/react";
 import safariIcon from "./image/safari.png";
 import VisitorCounter from "./components/VisitorCounter";
 
@@ -385,7 +385,7 @@ export default function App() {
         )}
       </AnimatePresence>
       <MacOSCursor />
-
+      <Analytics />
       <div
         className="absolute inset-0 bg-cover bg-center transition-all duration-700 ease-in-out z-0"
         style={{
