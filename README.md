@@ -48,13 +48,36 @@
 
 | **Lock Screen** | **Desktop** |
 |:---:|:---:|
-| ![Lock Screen](./src/image/lockscreen-preview.png) | ![Desktop](./src/image/desktop-preview.png) |
+| <img width="1919" height="1199" alt="image" src="https://github.com/user-attachments/assets/f220f5e1-9322-4871-960b-76500d474a5c" /> | <img width="1918" height="1199" alt="image" src="https://github.com/user-attachments/assets/765bce91-3354-44ff-b537-310d60a039ca" /> |
 
 | **Terminal** | **AI Assistant** |
 |:---:|:---:|
-| ![Terminal](./src/image/terminal-preview.png) | ![AI Assistant](./src/image/ai-preview.png) |
+| <img width="1917" height="1196" alt="image" src="https://github.com/user-attachments/assets/a9b3a471-ced4-4f09-b9c8-a3e6bfe9f26c" /> | <img width="1919" height="1199" alt="image" src="https://github.com/user-attachments/assets/cd06ab44-1c04-431f-a457-5b8b96b1d16e" /> |
 
-*(Note: Replace these paths with actual screenshots of your project)*
+ | **Dynamic Desktop Background** | **Finder** |
+|:---:|:---:|
+| <img width="1918" height="938" alt="image" src="https://github.com/user-attachments/assets/2ad65e5d-79e2-4c84-b345-bee1a405d57c" /> | <img width="1918" height="1199" alt="image" src="https://github.com/user-attachments/assets/5a196eac-7a8a-4568-9967-47fd7f5eeaee" /> |
+
+
+ | **Task Bar** | **About Section** |
+|:---:|:---:|
+| <img width="1918" height="946" alt="image" src="https://github.com/user-attachments/assets/d4ddc45a-bc42-4c9a-baee-b845bf884dd7" /> | <img width="1911" height="943" alt="image" src="https://github.com/user-attachments/assets/7e51782c-c11b-4e71-81e6-5649abbd37dd" /> |
+
+
+ | **Safari Search** | **Sportlight Search** |
+|:---:|:---:|
+| <img width="1919" height="939" alt="image" src="https://github.com/user-attachments/assets/3ea77abf-382a-47c1-a74e-022a53a6592c" /> | <img width="1914" height="941" alt="image" src="https://github.com/user-attachments/assets/5b3b763a-b12d-4d7d-a5cb-ea738822abff" /> |
+
+ | **Resume** | **System Pref.** |
+|:---:|:---:|
+|<img width="1919" height="942" alt="image" src="https://github.com/user-attachments/assets/b7a7b662-fd97-45fd-88ab-ee67f9f588b9" /> | <img width="1919" height="947" alt="image" src="https://github.com/user-attachments/assets/28278889-11c3-403f-aa77-4c5db5775228" /> |
+
+
+
+
+
+
+
 
 ---
 
