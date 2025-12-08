@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 
-// Updated to your specific v2 endpoint details
 const NAMESPACE = "saiyam-tutejas-team-2023";
 const KEY = "portfolio-count";
 
@@ -9,36 +8,53 @@ export function useVisitorCount() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // 1. Access the key from the environment variables
+    const apiKey = import.meta.env.VITE_COUNTER_API_KEY;
+
+    if (!apiKey) {
+      console.error("API Key is missing! Check your .env file.");
+      setLoading(false);
+      return;
+    }
+
     const fetchCount = async () => {
       try {
         const sessionKey = `visited_${NAMESPACE}_${KEY}`;
         const hasVisited = sessionStorage.getItem(sessionKey);
-
-        // Base URL for v2
+        
         let url = `https://api.counterapi.dev/v2/${NAMESPACE}/${KEY}`;
 
-        // If not visited this session, append '/up' to increment
+        // Only increment if not visited in this session
         if (!hasVisited) {
           url += "/up";
         }
 
-        const res = await fetch(url);
-        const data = await res.json();
+        const res = await fetch(url, {
+          method: 'GET',
+          headers: {
+            // 2. Use the variable here
+            'Authorization': `Bearer ${apiKey}`, 
+            'Content-Type': 'application/json'
+          }
+        });
 
-        // v2 often returns { value: 123 }, while v1 returned { count: 123 }
-        // We check for both to be safe.
+        if (!res.ok) {
+           // This helps debug if the key is wrong or restricted
+           console.error("API Error Status:", res.status);
+           return;
+        }
+
+        const data = await res.json();
         const validCount = data.value || data.count;
 
         if (validCount !== undefined) {
           setCount(validCount);
-          // Only mark as visited if the request was successful
           if (!hasVisited) {
             sessionStorage.setItem(sessionKey, "true");
           }
         }
       } catch (error) {
         console.error("Visitor count error:", error);
-        setCount(null); 
       } finally {
         setLoading(false);
       }
